@@ -1,0 +1,7 @@
+{
+  "project_name": "TU BDS MLOps25 Project",
+  "project_slug": "mlops_project",
+  "author_name": "Slavic rogue",
+  "description": "Refactored MLOps pipeline built from notebook.",
+  "python_version": "3.11"
+}
