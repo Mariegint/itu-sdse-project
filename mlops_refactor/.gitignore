@@ -1,0 +1,10 @@
+# Ignore all CSV and JSON files (data and artifacts)
+*.csv
+*.json
+
+# But keep config and metadata if needed
+!cookiecutter.json
+!**/config.json
+
+mlruns/
+artifacts/
