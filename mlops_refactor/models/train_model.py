@@ -1,13 +1,18 @@
 import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
-from sklearn.metrics import f1_score, accuracy_score
+from sklearn.metrics import f1_score, accuracy_score, classification_report
 
 from xgboost import XGBRFClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from scipy.stats import uniform
 from scipy.stats import randint
-from sklearn.metrics import classification_report
+
+import os
+import json
+import joblib
+import mlflow
+import mlflow.pyfunc
 
 
 def create_dummy_cols(data: pd.DataFrame, col: str) -> pd.DataFrame:
@@ -91,6 +96,48 @@ def train_XGBRFClassifier(X_train, y_train, save_path="./artifacts/lead_model_xg
     }
     
     return xgboost_model, model_results
+
+class lr_wrapper(mlflow.pyfunc.PythonModel):
+    def __init__(self, model):
+        self.model = model
+    def predict(self, context, model_input):
+        return self.model.predict_proba(model_input)[:, 1]
+
+def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
+    os.makedirs("./artifacts", exist_ok=True)
+
+    mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
+    experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
+
+    with mlflow.start_run(experiment_id=experiment_id):
+        model = LogisticRegression()
+        params = {
+            'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+            'penalty': ["none", "l1", "l2", "elasticnet"],
+            'C': [100, 10, 1.0, 0.1, 0.01]
+        }
+
+        grid = RandomizedSearchCV(model, params, n_iter=10, cv=3, verbose=1)
+        grid.fit(X_train, y_train)
+        best_model = grid.best_estimator_
+
+        y_pred_test = best_model.predict(X_test)
+        report = classification_report(y_test, y_pred_test, output_dict=True)
+
+        mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
+        mlflow.log_artifacts("artifacts", artifact_path="model")
+
+        model_path = "./artifacts/lead_model_lr.pkl"
+        joblib.dump(best_model, model_path)
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
+
+        with open('./artifacts/columns_list.json', 'w') as f:
+            json.dump({'column_names': list(X_train.columns)}, f)
+
+        with open('./artifacts/model_results.json', 'w') as f:
+            json.dump({model_path: report}, f, indent=4)
+
+    return best_model, report
 
 
 def train_and_select_best(X_train, y_train, X_test, y_test):
