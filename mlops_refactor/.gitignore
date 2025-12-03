@@ -5,3 +5,6 @@
 # But keep config and metadata if needed
 !cookiecutter.json
 !**/config.json
+
+mlruns/
+artifacts/

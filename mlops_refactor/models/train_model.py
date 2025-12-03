@@ -5,11 +5,8 @@ from sklearn.metrics import f1_score, accuracy_score, classification_report
 
 from xgboost import XGBRFClassifier
 from sklearn.model_selection import RandomizedSearchCV
-from scipy.stats import uniform
-from scipy.stats import randint
+from scipy.stats import uniform, randint
 
-import os
-import json
 import joblib
 import mlflow
 import mlflow.pyfunc
@@ -95,7 +92,7 @@ def train_XGBRFClassifier(X_train, y_train, save_path="./artifacts/lead_model_xg
         save_path: classification_report(y_train, y_pred_train, output_dict=True)
     }
     
-    return xgboost_model, model_results
+    return model_results
 
 class lr_wrapper(mlflow.pyfunc.PythonModel):
     def __init__(self, model):
@@ -104,40 +101,42 @@ class lr_wrapper(mlflow.pyfunc.PythonModel):
         return self.model.predict_proba(model_input)[:, 1]
 
 def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
-    os.makedirs("./artifacts", exist_ok=True)
-
     mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
     experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
 
-    with mlflow.start_run(experiment_id=experiment_id):
+    with mlflow.start_run(experiment_id=experiment_id) as run:
         model = LogisticRegression()
+        lr_model_path = "./artifacts/lead_model_lr.pkl"
+
         params = {
-            'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
-            'penalty': ["none", "l1", "l2", "elasticnet"],
-            'C': [100, 10, 1.0, 0.1, 0.01]
+                  'solver': ["newton-cg", "lbfgs", "liblinear", "sag", "saga"],
+                  'penalty':  ["none", "l1", "l2", "elasticnet"],
+                  'C' : [100, 10, 1.0, 0.1, 0.01]
         }
+        model_grid = RandomizedSearchCV(model, param_distributions=params, verbose=3, n_iter=10, cv=3)
+        model_grid.fit(X_train, y_train)
 
-        grid = RandomizedSearchCV(model, params, n_iter=10, cv=3, verbose=1)
-        grid.fit(X_train, y_train)
-        best_model = grid.best_estimator_
+        best_model = model_grid.best_estimator_
 
-        y_pred_test = best_model.predict(X_test)
-        report = classification_report(y_test, y_pred_test, output_dict=True)
+        y_pred_train = model_grid.predict(X_train)
+        y_pred_test = model_grid.predict(X_test)
 
+        # log artifacts
         mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
         mlflow.log_artifacts("artifacts", artifact_path="model")
+        mlflow.log_param("data_version", "00000")
 
-        model_path = "./artifacts/lead_model_lr.pkl"
-        joblib.dump(best_model, model_path)
-        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
+        # store model for model interpretability
+        joblib.dump(value=model, filename=lr_model_path)
+            
+        # Custom python model for predicting probability 
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
 
-        with open('./artifacts/columns_list.json', 'w') as f:
-            json.dump({'column_names': list(X_train.columns)}, f)
+    model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
+    #best_model_lr_params = model_grid.best_params_
 
-        with open('./artifacts/model_results.json', 'w') as f:
-            json.dump({model_path: report}, f, indent=4)
+    return model_classification_report
 
-    return best_model, report
 
 
 def train_and_select_best(X_train, y_train, X_test, y_test):
