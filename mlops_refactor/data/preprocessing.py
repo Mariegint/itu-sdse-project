@@ -128,7 +128,7 @@ def split_cat_cont(data: pd.DataFrame):
     based on dtype.
     """
     cont_cols = data.select_dtypes(include=["float64", "int64"]).columns
-    cat_cols = data.select_dtypes(include=["object"]).columns
+    cat_cols = data.select_dtypes(include=["object", "bool"]).columns
 
     data_cat = data[cat_cols].copy()
     data_cont = data[cont_cols].copy()
@@ -166,16 +166,6 @@ def scale_continuous_values(cont_vars: pd.DataFrame, save_path=None):
 
     data_scaled = pd.DataFrame(scaler.transform(cont_vars), columns=cont_vars.columns)
     return data_scaled
-
-
-def create_dummy_cols(data: pd.DataFrame, col: str) -> pd.DataFrame:
-    """
-    Creates one-hot encoded columns for a categorical variable.
-    Drops the original column.
-    """
-    dummies = pd.get_dummies(data[col], prefix=col, drop_first=True)
-    data = pd.concat([data, dummies], axis=1)
-    return data.drop(columns=[col])
 
 def bin_source_column(data: pd.DataFrame) -> pd.DataFrame:
     """
