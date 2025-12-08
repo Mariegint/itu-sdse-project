@@ -21,8 +21,9 @@ func main() {
 
 	// Load the host directory
 	project := client.Host().Directory("..", dagger.HostDirectoryOpts{
-		Exclude: []string{"venv/", "__pycache__/", "artifacts-out/"},
-	})
+	Exclude: []string{"venv/", "__pycache__/", "artifacts-out/"},
+	Include: []string{".dvc", ".dvc/cache", ".git", "dvc.yaml", "dvc.lock", "mlops_refactor/", "data/"},
+})
 
 	// Define the base Python container
 	python := client.Container().
@@ -30,9 +31,15 @@ func main() {
 		WithMountedDirectory("/work", project).
 		WithWorkdir("/work")
 
+	// ---------- DVC PULL DATA ----------
+	fmt.Println("=== RUNNING DVC PULL ===")
+	python_dvc := python.WithWorkdir("/work")
+	python_dvc = python_dvc.WithExec([]string{"pip", "install", "dvc"})
+	python_dvc = python_dvc.WithExec([]string{"dvc", "pull", "mlops_refactor/data/raw/raw.csv.dvc"})
+
 	// ---------- PIP INSTALL  ----------
 	fmt.Println("=== RUNNING PIP INSTALL ===")
-	python = python.WithExec([]string{"pip", "install", "-r", "mlops_refactor/requirements.txt"})
+	python = python_dvc.WithExec([]string{"pip", "install", "-r", "mlops_refactor/requirements.txt"})
 
 	// ---------- RUN TRAINING ----------
 	fmt.Println("=== RUN TRAINING ===")
