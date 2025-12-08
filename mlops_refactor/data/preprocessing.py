@@ -228,4 +228,12 @@ def preprocess_training_data(
     cat_vars = cat_vars.reset_index(drop=True)
     data = pd.concat([cat_vars, cont_vars], axis=1)
     data = bin_source_column(data)
+
+    # Encode all object columns for XGBoost
+    object_cols = data.select_dtypes(include="object").columns
+    if len(object_cols) > 0:
+        print("Encoding object columns:", list(object_cols))
+        for col in object_cols:
+            data[col] = data[col].astype("category").cat.codes
+
     return data
