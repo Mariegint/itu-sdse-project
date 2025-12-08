@@ -27,7 +27,7 @@ def run_pipeline():
     print("Preprocessing data...")
 
     data = preprocess_training_data(
-        input_path="data/raw/raw.csv",
+        input_path="mlops_refactor/data/raw/raw_data.csv",
         min_date="2024-01-01",
         max_date="2024-01-31",
         output_dir="artifacts"
