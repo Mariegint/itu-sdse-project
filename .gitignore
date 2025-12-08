@@ -1,10 +1,26 @@
 # Ignore all CSV and JSON files (data and artifacts)
 *.csv
 *.json
+*.pyc
+__pycache__/
+*.pyo
 
 # But keep config and metadata if needed
 !cookiecutter.json
 !**/config.json
 
 mlruns/
+mlflow.db
 artifacts/
+artifacts/**
+
+venv/
+.env/
+.dvc/cache/
+
+*.png
+*.html
+*.pkl
+*.yaml
+
+*.ipynb_checkpoints/
