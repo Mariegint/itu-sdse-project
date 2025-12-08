@@ -16,7 +16,6 @@ artifacts/**
 
 venv/
 .env/
-.dvc/cache/
 
 *.png
 *.html

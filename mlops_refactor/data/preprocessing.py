@@ -185,7 +185,7 @@ def bin_source_column(data: pd.DataFrame) -> pd.DataFrame:
     return data
 
 def preprocess_training_data(
-    input_path: str,
+    data: pd.DataFrame,
     min_date: str,
     max_date: str,
     output_dir: str = "./artifacts",
@@ -209,9 +209,6 @@ def preprocess_training_data(
     data : pd.DataFrame
         Fully preprocessed training dataset ready for modeling.
     """
-
-    os.makedirs(output_dir, exist_ok=True)
-    data = pd.read_csv(input_path)
     data = filter_data_by_date(data, min_date=min_date, max_date=max_date)
     data = drop_unused_features(data)
     data = clean_data(data)

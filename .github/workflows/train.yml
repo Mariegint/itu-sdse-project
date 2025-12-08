@@ -2,13 +2,9 @@ name: Train Model
 
 on:
   push:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
   pull_request:
-    branches:
-      - main
-      - master
+    branches: [ main, master ]
 
 jobs:
   train:
@@ -22,15 +18,8 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install DVC
-        run: pip install dvc
-
-      - name: DVC Pull Data
-        run: dvc pull mlops_refactor/data/raw/raw.csv.dvc
-
       - name: Install dependencies
-        run: |
-          pip install -r mlops_refactor/requirements.txt
+        run: pip install -r mlops_refactor/requirements.txt
 
       - name: Run Dagger workflow (train)
         run: |
