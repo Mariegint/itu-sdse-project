@@ -20,8 +20,8 @@ func main() {
 	defer client.Close()
 
 	// Load the host directory
-	project := client.Host().Directory(".", dagger.HostDirectoryOpts{
-		Exclude: []string{"venv/", "__pycache__/", "artifacts-out/"}, // Added artifacts-out/ to avoid copying prior output
+	project := client.Host().Directory("..", dagger.HostDirectoryOpts{
+		Exclude: []string{"venv/", "__pycache__/", "artifacts-out/"},
 	})
 
 	// Define the base Python container
@@ -32,12 +32,10 @@ func main() {
 
 	// ---------- PIP INSTALL  ----------
 	fmt.Println("=== RUNNING PIP INSTALL ===")
-	// Creates a NEW container object reflecting the changes.
-	python = python.WithExec([]string{"pip", "install", "-r", "requirements.txt"})
+	python = python.WithExec([]string{"pip", "install", "-r", "mlops_refactor/requirements.txt"})
 
 	// ---------- RUN TRAINING ----------
 	fmt.Println("=== RUN TRAINING ===")
-	// This container holds the state after training is complete (and 'artifacts' are created)
 	trained := python.WithExec([]string{"python", "-m", "mlops_refactor.pipeline.train_pipeline"})
 
 	// Force Execution
@@ -46,14 +44,11 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Print(output) // Print the output from the training run
+	fmt.Print(output)
 	fmt.Println("=============================")
 
-	// Get the 'artifacts' directory from the now-executed container
-	// 'trained' is used here, ensuring we get the directory created by the training step.
 	artifacts := trained.Directory("artifacts")
 
-	// Export the artifacts
 	fmt.Println("=== EXPORTING ARTIFACTS ===")
 	_, err = artifacts.Export(ctx, filepath.Join(".", "artifacts-out"))
 	if err != nil {
