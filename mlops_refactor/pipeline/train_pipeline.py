@@ -21,7 +21,7 @@ except ImportError:
         "or the appropriate remote plugin (e.g., 'dvc[s3]', 'dvc[gdrive]')."
     )
 
-ARTIFACT_DIR = Path("artifacts/model")
+ARTIFACT_DIR = Path("artifacts")
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
 

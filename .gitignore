@@ -13,6 +13,8 @@ mlruns/
 mlflow.db
 artifacts/
 artifacts/**
+dagger/artifacts-out/
+dagger/artifacts-out/**
 
 venv/
 .env/
