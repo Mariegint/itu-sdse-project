@@ -102,7 +102,10 @@ class lr_wrapper(mlflow.pyfunc.PythonModel):
 
 def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
     mlflow.sklearn.autolog(log_input_examples=True, log_models=False)
-    experiment_id = mlflow.get_experiment_by_name(experiment_name).experiment_id
+    mlflow.set_experiment(experiment_name)
+    experiment = mlflow.get_experiment_by_name(experiment_name)
+    experiment_id = experiment.experiment_id
+
 
     with mlflow.start_run(experiment_id=experiment_id) as run:
         model = LogisticRegression()
