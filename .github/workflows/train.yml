@@ -3,6 +3,7 @@ name: Train Model
 on:
   push:
     branches: [ main, master ]
+  workflow_dispatch:
   pull_request:
     branches: [ main, master ]
 

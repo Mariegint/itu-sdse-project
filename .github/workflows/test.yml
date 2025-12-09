@@ -5,6 +5,7 @@ on:
     workflows: ["Train Model"]
     types:
       - completed
+  workflow_dispatch:
 
 jobs:
   test:
