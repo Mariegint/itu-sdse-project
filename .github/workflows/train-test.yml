@@ -1,0 +1,67 @@
+name: Train + Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install Python deps
+        run: pip install -r requirements.txt
+
+      - name: Run Dagger workflow (train)
+        run: go run ./dagger/main.go
+
+      - name: Debug tree
+        run: ls -R .
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: model
+          path: artifacts/model/**
+
+  test:
+    runs-on: ubuntu-latest
+    needs: train
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: model
+          path: ./model
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Verify artifact exists
+        run: ls -R ./model
+
+      - name: Validate inference
+        run: python model-validator/test_inference.py --model ./model
