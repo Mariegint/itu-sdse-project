@@ -1,3 +1,4 @@
+# .github/workflows/train_test.yml
 name: Train + Test
 
 on:
@@ -30,14 +31,14 @@ jobs:
       - name: Run Dagger workflow (train)
         run: go run ./dagger/main.go
 
-      - name: Debug tree
-        run: ls -R .
+      - name: Show files (debug)
+        run: ls -R
 
       - name: Upload model artifact
         uses: actions/upload-artifact@v4
         with:
           name: model
-          path: artifacts/model/**
+          path: ./model/
 
   test:
     runs-on: ubuntu-latest
@@ -46,7 +47,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Download artifact
+      - name: Download model artifact
         uses: actions/download-artifact@v4
         with:
           name: model
@@ -60,8 +61,7 @@ jobs:
       - name: Install deps
         run: pip install -r requirements.txt
 
-      - name: Verify artifact exists
-        run: ls -R ./model
-
-      - name: Validate inference
-        run: python model-validator/test_inference.py --model ./model
+      - name: Validate model inference
+        uses: ./model-validator
+        with:
+          model_path: ./model
