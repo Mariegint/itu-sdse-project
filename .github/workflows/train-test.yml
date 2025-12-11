@@ -26,7 +26,7 @@ jobs:
           python-version: '3.10'
 
       - name: Install Python deps
-        run: pip install -r requirements.txt
+        run: pip install -r mlops_refactor/requirements.txt
 
       - name: Run Dagger workflow (train)
         run: go run ./dagger/main.go
@@ -38,7 +38,8 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: model
-          path: ./model/
+          path: artifacts/model/**
+
 
   test:
     runs-on: ubuntu-latest
