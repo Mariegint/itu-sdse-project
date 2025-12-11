@@ -29,8 +29,10 @@ jobs:
         run: pip install -r mlops_refactor/requirements.txt
 
       - name: Run Dagger workflow (train)
-        run: go run ./dagger/main.go
-
+        run: |
+          cd dagger
+          go run main.go
+          
       - name: Show files (debug)
         run: ls -R
 
