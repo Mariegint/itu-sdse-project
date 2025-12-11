@@ -32,7 +32,7 @@ jobs:
         run: |
           cd dagger
           go run main.go
-          
+
       - name: Show files (debug)
         run: ls -R
 
@@ -40,7 +40,9 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: model
-          path: artifacts/model/**
+          path: dagger/artifacts-out/model/*
+          if-no-files-found: error
+
 
 
   test:
@@ -62,8 +64,8 @@ jobs:
           python-version: '3.10'
 
       - name: Install deps
-        run: pip install -r requirements.txt
-
+        run: pip install -r mlops_refactor/requirements.txt
+        
       - name: Validate model inference
         uses: ./model-validator
         with:
