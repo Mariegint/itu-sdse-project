@@ -1,4 +1,3 @@
-# .github/workflows/train_test.yml
 name: Train + Test
 
 on:
@@ -40,33 +39,12 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: model
-          path: dagger/artifacts-out/model/*
+          path: dagger/artifacts-out/model/**
           if-no-files-found: error
-
-
 
   test:
     runs-on: ubuntu-latest
     needs: train
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Download model artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: model
-          path: ./model
-
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.10'
-
-      - name: Install deps
-        run: pip install -r mlops_refactor/requirements.txt
-        
-      - name: Validate model inference
-        uses: ./model-validator
-        with:
-          model_path: ./model
+      - name: Run Model Inference Test Action
+        uses: lasselundstenjensen/itu-sdse-project-model-validator@main
