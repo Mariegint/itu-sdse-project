@@ -1,3 +1,13 @@
+name: Train + Test
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:  
   train:
     runs-on: ubuntu-latest
     steps:
