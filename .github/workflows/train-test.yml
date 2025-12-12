@@ -20,7 +20,7 @@ jobs:
           go-version: '1.22'
 
       - name: Setup Python
-        uses: actions/setup-python@vv5
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
