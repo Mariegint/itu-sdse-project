@@ -29,22 +29,20 @@ jobs:
 
       - name: Run Dagger workflow (train)
         run: |
-          dagger run -- go run dagger/main.go
+          cd dagger
+          go run main.go
 
       - name: Show files (debug)
         run: ls -R
 
-      - name: Prepare model artifact for validator
-        run: |
-          mkdir -p model
-          cp dagger/artifacts-out/lead_model_lr.pkl model/model.pkl
-
       - name: Upload model artifact
-        uses: actions/upload-artifact@v4.4.0
+        uses: actions/upload-artifact@v4
         with:
           name: model
-          path: model/model.pkl
+          path: dagger/artifacts-out/model/*
           if-no-files-found: error
+
+
   test:
     runs-on: ubuntu-latest
     needs: train
@@ -52,5 +50,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Upload Model Artifact
+        uses: actions/upload-artifact@v4.4.0
+        with:
+          name: model
+          path: dagger/artifacts-out/lead_model_lr.pkl
+          
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
