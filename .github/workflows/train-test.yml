@@ -35,26 +35,17 @@ jobs:
       - name: Show files (debug)
         run: ls -R
 
-      - name: Upload model artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: model
-          path: dagger/artifacts-out/model/*
-          if-no-files-found: error
-
-
-  test:
-    runs-on: ubuntu-latest
-    needs: train
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
       - name: Upload Model Artifact
         uses: actions/upload-artifact@v4.4.0
         with:
           name: model
           path: dagger/artifacts-out/lead_model_lr.pkl
-          
+          if-no-files-found: error
+
+  test:
+    runs-on: ubuntu-latest
+    needs: train
+    steps:
+
       - name: Run Model Inference Test Action
         uses: lasselundstenjensen/itu-sdse-project-model-validator@main
