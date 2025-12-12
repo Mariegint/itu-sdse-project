@@ -1,13 +1,3 @@
-name: Train + Test
-
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  workflow_dispatch:
-
-jobs:
   train:
     runs-on: ubuntu-latest
     steps:
@@ -20,7 +10,7 @@ jobs:
           go-version: '1.22'
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@vv5
         with:
           python-version: '3.10'
 
@@ -32,15 +22,16 @@ jobs:
           cd dagger
           go run main.go
 
-      - name: Show files (debug)
-        run: ls -R
+      - name: Copy model to expected name
+        run: cp dagger/artifacts-out/lead_model_lr.pkl model.pkl
 
-      - name: Upload Model Artifact
-        uses: actions/upload-artifact@v4.4.0
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
         with:
           name: model
-          path: dagger/artifacts-out/lead_model_lr.pkl
+          path: model.pkl
           if-no-files-found: error
+
 
   test:
     runs-on: ubuntu-latest
