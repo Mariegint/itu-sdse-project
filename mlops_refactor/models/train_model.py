@@ -121,19 +121,19 @@ def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
 
         best_model = model_grid.best_estimator_
 
-        y_pred_train = model_grid.predict(X_train)
-        y_pred_test = model_grid.predict(X_test)
+        y_pred_train = best_model.predict(X_train)
+        y_pred_test  = best_model.predict(X_test)
 
         # log artifacts
         mlflow.log_metric('f1_score', f1_score(y_test, y_pred_test))
         mlflow.log_artifacts("artifacts", artifact_path="model")
         mlflow.log_param("data_version", "00000")
 
-        # store model for model interpretability
-        joblib.dump(value=model, filename=lr_model_path)
-            
-        # Custom python model for predicting probability 
-        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(model))
+        # store the *fitted* best model
+        joblib.dump(value=best_model, filename=lr_model_path)
+
+        mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
+
 
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
     #best_model_lr_params = model_grid.best_params_
