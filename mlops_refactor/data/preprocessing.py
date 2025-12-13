@@ -222,6 +222,8 @@ def preprocess_training_data(
     data = drop_unused_features(data)
     data = clean_data(data)
 
+    data = cast_categorical(data, CATEGORICAL_COLS)
+
     cat_vars, cont_vars = split_cat_cont(data)
     cont_vars = clip_outliers(cont_vars)
 
@@ -234,7 +236,6 @@ def preprocess_training_data(
     cat_vars = cat_vars.reset_index(drop=True)
     data = pd.concat([cat_vars, cont_vars], axis=1)
 
-    data = cast_categorical(data, CATEGORICAL_COLS)
     data = bin_source_column(data)
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
