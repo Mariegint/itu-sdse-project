@@ -24,6 +24,15 @@ TEMP_REMOVED_BEFORE_EDA = [
     "visited_faq",
 ]
 
+CATEGORICAL_COLS = [
+    "lead_id",
+    "lead_indicator",
+    "customer_group",
+    "onboarding",
+    "source",
+    "customer_code",
+]
+
 def describe_numeric_col(x):
     """
     Parameters:
@@ -224,6 +233,8 @@ def preprocess_training_data(
     cont_vars = cont_vars.reset_index(drop=True)
     cat_vars = cat_vars.reset_index(drop=True)
     data = pd.concat([cat_vars, cont_vars], axis=1)
+
+    data = cast_categorical(data, CATEGORICAL_COLS)
     data = bin_source_column(data)
 
     Path(output_dir).mkdir(parents=True, exist_ok=True)
