@@ -22,14 +22,13 @@ def create_dummy_cols(data: pd.DataFrame, col: str) -> pd.DataFrame:
     return data.drop(columns=[col])
 
 
-def prepare_features(data: pd.DataFrame, data_path: str) -> pd.DataFrame:
+def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
     """
     Cleans and transforms the dataset for model training:
     - Drops unused columns
     - One-hot encodes categorical variables
     - Converts all columns to float64
     """
-    data = pd.read_csv(data_path)
     # Drop unnecessary columns
     data = data.drop(["lead_id", "customer_code", "date_part"], axis=1, errors="ignore")
 
