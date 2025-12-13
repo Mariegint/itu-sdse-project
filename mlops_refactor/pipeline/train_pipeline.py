@@ -1,12 +1,12 @@
 import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from dvc.api import DVCFileSystem
-
 from mlops_refactor.data.preprocessing import preprocess_training_data
 from mlops_refactor.models.train_model import (
     train_XGBRFClassifier,
     train_LogisticRegression,
+    prepare_features,
+    split_features_target
 )
 
 # next step
@@ -42,28 +42,34 @@ def run_pipeline():
       4. Select best model using MLflow
       5. Save final model artifact
     """
-    print("Preprocessing data...")
+    print("Loading data...")
     dvc_data_path = "mlops_refactor/data/raw/raw_data.csv"
     data = load_data_from_dvc(dvc_data_path)
 
-
-    data = preprocess_training_data(
+    print("Preprocessing data...")
+    gold = preprocess_training_data(
         data=data,
         min_date="2024-01-01",
         max_date="2024-01-31",
-        output_dir="artifacts"
+        output_dir=str(ARTIFACT_DIR)
     )
+
+    print("Preparing features...")
+    final_data = prepare_features(gold)
+
+    X, y = split_features_target(final_data, target_col="lead_indicator")
 
     print("Splitting train/test...")
-    y = data["lead_indicator"]
-    X = data.drop(columns=["lead_indicator"])
-
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y,
+        test_size=0.15,
+        random_state=42,
+        stratify=y,
     )
 
+
     print("Training XGBoost model...")
-    xgb_path = ARTIFACT_DIR / "xgb_model.json"
+    xgb_path = ARTIFACT_DIR / "lead_model_xgboost.json"
     train_XGBRFClassifier(
         X_train, y_train,
         save_path=str(xgb_path)
@@ -83,7 +89,6 @@ def run_pipeline():
     )
 
     print(f"Final model saved at: {final_model_path}")
-    print(str(final_model_path))
     return final_model_path
 
 
