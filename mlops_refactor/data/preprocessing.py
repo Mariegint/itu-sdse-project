@@ -24,6 +24,15 @@ TEMP_REMOVED_BEFORE_EDA = [
     "visited_faq",
 ]
 
+CATEGORICAL_COLS = [
+    "lead_id",
+    "lead_indicator",
+    "customer_group",
+    "onboarding",
+    "source",
+    "customer_code",
+]
+
 def describe_numeric_col(x):
     """
     Parameters:
@@ -213,6 +222,8 @@ def preprocess_training_data(
     data = drop_unused_features(data)
     data = clean_data(data)
 
+    data = cast_categorical(data, CATEGORICAL_COLS)
+
     cat_vars, cont_vars = split_cat_cont(data)
     cont_vars = clip_outliers(cont_vars)
 
@@ -224,13 +235,10 @@ def preprocess_training_data(
     cont_vars = cont_vars.reset_index(drop=True)
     cat_vars = cat_vars.reset_index(drop=True)
     data = pd.concat([cat_vars, cont_vars], axis=1)
+
     data = bin_source_column(data)
 
-    # Encode all object columns for XGBoost
-    object_cols = data.select_dtypes(include="object").columns
-    if len(object_cols) > 0:
-        print("Encoding object columns:", list(object_cols))
-        for col in object_cols:
-            data[col] = data[col].astype("category").cat.codes
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+    data.to_csv(os.path.join(output_dir, "train_data_gold.csv"), index=False)
 
     return data
