@@ -8,11 +8,9 @@ from mlops_refactor.models.train_model import (
     prepare_features,
     split_features_target
 )
-
-# next step
 from mlops_refactor.models.select_model import select_best_model  
 
-# Optional: use DVC API if running in CI
+
 try:
     from dvc.api import DVCFileSystem
 except ImportError:

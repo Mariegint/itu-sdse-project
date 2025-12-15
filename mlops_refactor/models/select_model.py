@@ -34,7 +34,7 @@ def select_best_model(mlflow_experiment: str, save_folder: Path) -> Path:
     if runs.empty:
         raise ValueError("No F1-score logged in MLflow runs.")
 
-    # Sort highest F1 first
+    # Get best run based on F1-score
     best_run = runs.sort_values("metrics.f1_score", ascending=False).iloc[0]
     best_run_id = best_run.run_id
 
@@ -42,9 +42,8 @@ def select_best_model(mlflow_experiment: str, save_folder: Path) -> Path:
     print(f"Best run ID: {best_run_id}")
     print(f"Best F1-score: {best_score}")
 
-    # In MLflow, the model is stored under: artifacts/model
     run_info = mlflow.get_run(best_run_id)
-    model_uri = f"{run_info.info.artifact_uri}/model"
+    model_uri = f"{run_info.info.artifact_uri}/model"  # In MLflow, the model is stored under: artifacts/model
 
     # Ensure output folder exists
     save_folder.mkdir(parents=True, exist_ok=True)

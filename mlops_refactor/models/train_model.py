@@ -29,10 +29,8 @@ def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
     - One-hot encodes categorical variables
     - Converts all columns to float64
     """
-    # Drop unnecessary columns
-    data = data.drop(["lead_id", "customer_code", "date_part"], axis=1, errors="ignore")
 
-    # Define categorical columns
+    data = data.drop(["lead_id", "customer_code", "date_part"], axis=1, errors="ignore")
     cat_cols = ["customer_group", "onboarding", "bin_source", "source"]
 
     # Separate categorical and other variables
@@ -44,7 +42,6 @@ def prepare_features(data: pd.DataFrame) -> pd.DataFrame:
         cat_vars[col] = cat_vars[col].astype("category")
         cat_vars = create_dummy_cols(cat_vars, col)
 
-    # Combine and ensure float type
     final_data = pd.concat([other_vars, cat_vars], axis=1)
     final_data = final_data.astype("float64")
     return final_data
@@ -120,7 +117,6 @@ def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
 
         best_model = model_grid.best_estimator_
 
-        y_pred_train = best_model.predict(X_train)
         y_pred_test  = best_model.predict(X_test)
 
         # log artifacts
@@ -128,45 +124,11 @@ def train_LogisticRegression(X_train, y_train, X_test, y_test, experiment_name):
         mlflow.log_artifacts("artifacts", artifact_path="model")
         mlflow.log_param("data_version", "00000")
 
-        # store the *fitted* best model
+        # store the fitted best model
         joblib.dump(value=best_model, filename=lr_model_path)
 
         mlflow.pyfunc.log_model('model', python_model=lr_wrapper(best_model))
 
 
     model_classification_report = classification_report(y_test, y_pred_test, output_dict=True)
-    #best_model_lr_params = model_grid.best_params_
-
     return model_classification_report
-
-
-
-def train_and_select_best(X_train, y_train, X_test, y_test):
-    """
-    Trains multiple candidate models and selects the best based on F1 score.
-    Returns the best model and its metrics.
-    """
-    candidates = {
-        "logreg": LogisticRegression(max_iter=1000),
-        "rf": RandomForestClassifier(n_estimators=200, random_state=42),
-        "gb": GradientBoostingClassifier()
-    }
-
-    best_model = None
-    best_score = -1
-    best_name = None
-    results = {}
-
-    for name, model in candidates.items():
-        model.fit(X_train, y_train)
-        y_pred = model.predict(X_test)
-        f1 = f1_score(y_test, y_pred)
-        acc = accuracy_score(y_test, y_pred)
-        results[name] = {"f1": f1, "accuracy": acc}
-
-        if f1 > best_score:
-            best_score = f1
-            best_model = model
-            best_name = name
-
-    return best_model, best_name, results

@@ -197,7 +197,7 @@ def preprocess_training_data(
     data: pd.DataFrame,
     min_date: str,
     max_date: str,
-    output_dir: str = "./artifacts",
+    output_dir: str,
 ):
     """
     Runs the full preprocessing pipeline for training data.
