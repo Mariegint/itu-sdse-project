@@ -32,11 +32,15 @@ func main() {
 	python := client.Container().
 		From("python:3.11").
 		WithMountedDirectory("/work", project).
+		WithMountedCache("/work/mlruns", client.CacheVolume("mlflow-tracking")).
 		WithWorkdir("/work")
 
 	// ---------- INSTALL DEPENDENCIES ----------
 	fmt.Println("=== INSTALLING PYTHON DEPENDENCIES ===")
 	python = python.WithExec([]string{"pip", "install", "-r", "mlops_refactor/requirements.txt"})
+
+	// ---------- PREPARE MLFLOW DIRECTORY ----------
+	python = python.WithExec([]string{"mkdir", "-p", "mlruns"})
 
 	// ---------- RUN TRAINING PIPELINE ----------
 	fmt.Println("=== RUNNING TRAINING PIPELINE ===")
@@ -61,4 +65,5 @@ func main() {
 	}
 
 	fmt.Println("✅ DONE — Artifacts exported to artifacts-out/")
+
 }
