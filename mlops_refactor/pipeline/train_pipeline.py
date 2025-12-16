@@ -8,7 +8,7 @@ from mlops_refactor.models.train_model import (
     prepare_features,
     split_features_target
 )
-from mlops_refactor.models.select_model import compare_prod_and_best_model, register_best_model, select_best_model  
+from mlops_refactor.models.select_model import compare_prod_and_best_model, promote_to_staging_if_needed, register_best_model, select_best_model  
 
 
 try:
@@ -97,7 +97,8 @@ def run_pipeline():
 
     if run_id:
         print(" Registering new production model...")
-        register_best_model(run_id, artifact_path="model", model_name=model_name)
+        model_details = register_best_model(run_id, artifact_path="model", model_name=model_name)
+        promote_to_staging_if_needed( model_name=model_name, model_version=model_details["version"])
     else:
         print(" Keeping current production model (new one not better).")
 

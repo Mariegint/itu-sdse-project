@@ -19,6 +19,21 @@ def wait_until_ready(model_name, model_version):
             break
         time.sleep(1)
 
+def wait_for_deployment(model_name, model_version, stage='Staging'):
+    client = MlflowClient()
+    status = False
+    while not status:
+        model_version_details = dict(
+            client.get_model_version(name=model_name,version=model_version)
+            )
+        if model_version_details['current_stage'] == stage:
+            print(f'Transition completed to {stage}')
+            status = True
+            break
+        else:
+            time.sleep(2)
+    return status
+
 
 
 def select_best_model(mlflow_experiment: str, save_folder: Path) -> Path:
@@ -89,7 +104,6 @@ def get_production_model(model_name: str):
     ]
 
     if not prod_models:
-        print("⚠️ No model in production.")
         return None
 
     prod_model_version = dict(prod_models[0])['version']
@@ -138,4 +152,26 @@ def register_best_model(run_id: str, artifact_path: str, model_name: str):
     model_details = dict(model_details)
     print(model_details)
     return dict(model_details)
+
+def promote_to_staging_if_needed(model_name: str, model_version: str):
+    """
+    Promote model to Staging if it is not already in Staging.
+    (Logic unchanged – only wrapped.)
+    """
+
+    client = MlflowClient()
+    model_version_details = dict(
+        client.get_model_version(name=model_name, version=model_version)
+    )
+    if model_version_details['current_stage'] != 'Staging':
+        client.transition_model_version_stage(
+            name=model_name,
+            version=model_version,
+            stage="Staging",
+            archive_existing_versions=True
+        )
+        wait_for_deployment(model_name, model_version, 'Staging')
+        print(f'Model promoted to staging: version {model_version}')
+    else:
+        print('Model already in staging')
 
