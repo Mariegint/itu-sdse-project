@@ -2,11 +2,9 @@ import pandas as pd
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.metrics import f1_score, accuracy_score, classification_report
-
 from xgboost import XGBRFClassifier
 from sklearn.model_selection import RandomizedSearchCV
 from scipy.stats import uniform, randint
-
 import joblib
 import mlflow
 import mlflow.pyfunc

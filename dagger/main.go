@@ -44,7 +44,7 @@ func main() {
 
 	// ---------- RUN TRAINING PIPELINE ----------
 	fmt.Println("=== RUNNING TRAINING PIPELINE ===")
-	trained := python.WithExec([]string{"python", "-m", "mlops_refactor.pipeline.train_pipeline"})
+	trained := python.WithExec([]string{"python", "-m", "mlops_refactor.src.pipeline.train_pipeline"})
 
 	// ---------- CAPTURE OUTPUT ----------
 	fmt.Println("=== TRAIN PIPELINE OUTPUT ===")

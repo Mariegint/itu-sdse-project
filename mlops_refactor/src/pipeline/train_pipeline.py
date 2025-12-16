@@ -1,14 +1,14 @@
 import pandas as pd
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-from mlops_refactor.data.preprocessing import preprocess_training_data
-from mlops_refactor.models.train_model import (
+from mlops_refactor.src.data.preprocessing import preprocess_training_data
+from mlops_refactor.src.models.train_models import (
     train_XGBRFClassifier,
     train_LogisticRegression,
     prepare_features,
     split_features_target
 )
-from mlops_refactor.models.select_model import compare_prod_and_best_model, promote_to_staging_if_needed, register_best_model, select_best_model  
+from mlops_refactor.src.models.select_model import compare_prod_and_best_model, promote_to_staging_if_needed, register_best_model, select_best_model  
 
 
 try:
