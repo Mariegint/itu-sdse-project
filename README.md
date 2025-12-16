@@ -16,16 +16,21 @@ The end goal is to support reproducible training and evaluation of machine learn
 ## Project structure
 
 ```bash
-├── .dvc/                         <- DVC configuration
+itu-sdse-project/
+├── README.md                  # Project overview and description
+├── dagger.json                # Dagger project configuration
+├── .dvc/                      # DVC metadata and configuration
 ├── .github/
-│   └── workflows/                <- GitHub Actions workflows
-├── cookiecutter-mlops-template/  <- Base MLOps project template
-├── dagger/                       <- Pipeline-related code and configuration
-├── docs/                         <- Documentation and diagrams
-├── mlops_refactor/               <- Refactored ML code from the original notebook
-├── dagger.json                   <- Dagger project metadata (engine version and name)
-├── LICENSE
-└── README.md                     <- Project overview
+│   └── workflows/             # CI/CD workflows (GitHub Actions)
+├── cookiecutter-mlops-template/ # Template used to bootstrap the project
+├── dagger/                    # Dagger pipeline and orchestration code
+├── docs/                      # Project documentation
+└── mlops_refactor/            # Refactored ML codebase
+    ├── data/                  # Data loading and preprocessing logic
+    ├── models/                # Model definitions and training code
+    ├── evaluation/            # Model evaluation and metrics
+    ├── pipelines/             # End-to-end ML workflow orchestration
+    └── utils/                 # Shared helper functions
 ```
 
 ## How to run
