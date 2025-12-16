@@ -17,20 +17,22 @@ The end goal is to support reproducible training and evaluation of machine learn
 
 ```bash
 itu-sdse-project/
-├── README.md                  # Project overview and description
-├── dagger.json                # Dagger project configuration
-├── .dvc/                      # DVC metadata and configuration
+├── README.md                     # Project overview and description
+├── dagger.json                   # Dagger project configuration
+├── .dvc/                         # DVC metadata and configuration
 ├── .github/
-│   └── workflows/             # CI/CD workflows (GitHub Actions)
-├── cookiecutter-mlops-template/ # Template used to bootstrap the project
-├── dagger/                    # Dagger pipeline and orchestration code
-├── docs/                      # Project documentation
-└── mlops_refactor/            # Refactored ML codebase
-    ├── data/                  # Data loading and preprocessing logic
-    ├── models/                # Model definitions and training code
-    ├── evaluation/            # Model evaluation and metrics
-    ├── pipelines/             # End-to-end ML workflow orchestration
-    └── utils/                 # Shared helper functions
+│   └── workflows/                # CI/CD workflows (GitHub Actions)
+├── cookiecutter-mlops-template/  # Cookiecutter MLOps template used for refactoring
+├── dagger/                       # Dagger-based pipeline orchestration
+├── docs/                         # Project documentation
+└── mlops_refactor/               # Refactored ML project (Cookiecutter-based)
+    ├── data/                     # Data directory (tracked via DVC)
+    ├── src/                      # Main Python source code
+    │   ├── data/                 # Data loading and preprocessing modules
+    │   ├── models/               # Model training and definition code
+    │   └── pipeline/             # ML pipeline logic
+    ├── model_inference.py        # Script for running model inference
+    └── requirements.txt          # Python dependencies for ML code
 ```
 
 ## How to run
