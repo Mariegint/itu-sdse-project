@@ -8,11 +8,9 @@ from mlops_refactor.models.train_model import (
     prepare_features,
     split_features_target
 )
+from mlops_refactor.models.select_model import compare_prod_and_best_model, promote_to_staging_if_needed, register_best_model, select_best_model  
 
-# next step
-from mlops_refactor.models.select_model import select_best_model  
 
-# Optional: use DVC API if running in CI
 try:
     from dvc.api import DVCFileSystem
 except ImportError:
@@ -76,17 +74,33 @@ def run_pipeline():
     )
 
     print("Training Logistic Regression...")
+    experiment_name="LeadPrediction"
     train_LogisticRegression(
         X_train, y_train,
         X_test, y_test,
-        experiment_name="LeadPrediction"
+        experiment_name
     )
 
     print("Selecting best model...")
-    final_model_path = select_best_model(
-        mlflow_experiment="LeadPrediction",
+    best_run, final_model_path = select_best_model(
+        mlflow_experiment=experiment_name,
         save_folder=ARTIFACT_DIR
     )
+    print("Comparing to production model...")
+    experiment_best = {
+        "run_id": best_run.run_id,
+        "metrics": {"f1_score": best_run["metrics.f1_score"]},
+    }
+
+    model_name = "lead_model"
+    run_id = compare_prod_and_best_model(experiment_best, model_name)
+
+    if run_id:
+        print(" Registering new production model...")
+        model_details = register_best_model(run_id, artifact_path="model", model_name=model_name)
+        promote_to_staging_if_needed( model_name=model_name, model_version=model_details["version"])
+    else:
+        print(" Keeping current production model (new one not better).")
 
     print(f"Final model saved at: {final_model_path}")
     return final_model_path
