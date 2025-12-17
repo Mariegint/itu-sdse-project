@@ -2,7 +2,7 @@
 
 ## About
 
-This repository contains the group project for the course **Data Science in Production: MLOps and Software Engineering** at the IT University of Copenhagen.
+This repository contains the Slavic rogue group project for the course **Data Science in Production: MLOps and Software Engineering** at the IT University of Copenhagen.
 
 The project is based on a provided machine learning notebook and focuses on applying **MLOps principles** to structure, refactor, and automate a machine learning workflow. The repository demonstrates:
 
@@ -21,7 +21,6 @@ itu-sdse-project/
 ├── .dvc/                         # DVC metadata and configuration
 ├── .github/
 │   └── workflows/                # CI/CD workflows (GitHub Actions)
-├── cookiecutter-mlops-template/  # Cookiecutter MLOps template used for refactoring
 ├── dagger/                       # Dagger-based pipeline orchestration
 └── mlops_refactor/               # Refactored ML project (Cookiecutter-based)
     ├── data/                     # Data directory (tracked via DVC)
