@@ -18,13 +18,11 @@ The end goal is to support reproducible training and evaluation of machine learn
 ```bash
 itu-sdse-project/
 ├── README.md                     # Project overview and description
-├── dagger.json                   # Dagger project configuration
 ├── .dvc/                         # DVC metadata and configuration
 ├── .github/
 │   └── workflows/                # CI/CD workflows (GitHub Actions)
 ├── cookiecutter-mlops-template/  # Cookiecutter MLOps template used for refactoring
 ├── dagger/                       # Dagger-based pipeline orchestration
-├── docs/                         # Project documentation
 └── mlops_refactor/               # Refactored ML project (Cookiecutter-based)
     ├── data/                     # Data directory (tracked via DVC)
     ├── src/                      # Main Python source code
