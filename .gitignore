@@ -25,3 +25,6 @@ venv/
 *.yaml
 
 *.ipynb_checkpoints/
+
+# Ignore DVC cache
+.dvc/cache/
