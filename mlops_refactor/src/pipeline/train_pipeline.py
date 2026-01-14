@@ -10,25 +10,14 @@ from mlops_refactor.src.models.train_models import (
 )
 from mlops_refactor.src.models.select_model import compare_prod_and_best_model, promote_to_staging_if_needed, register_best_model, select_best_model  
 
-
-try:
-    from dvc.api import DVCFileSystem
-except ImportError:
-    raise ImportError(
-        "DVC is required. Please install it with `pip install 'dvc[fs]'` "
-        "or the appropriate remote plugin (e.g., 'dvc[s3]', 'dvc[gdrive]')."
-    )
-
 ARTIFACT_DIR = Path("artifacts")
 ARTIFACT_DIR.mkdir(parents=True, exist_ok=True)
 
-
 def load_data_from_dvc(path: str) -> pd.DataFrame:
-    """Load dataset directly from DVC remote."""
-    print(f"Loading dataset from DVC: {path}")
-    fs = DVCFileSystem(".")  # uses the current repo’s DVC config
-    with fs.open(path, "r") as f:
-        return pd.read_csv(f)
+    """Load dataset from local filesystem after dvc pull."""
+    print(f"Loading dataset from local path: {path}")
+    return pd.read_csv(path)
+
 
 
 def run_pipeline():
