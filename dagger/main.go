@@ -54,7 +54,7 @@ func connectDagger(ctx context.Context) (*dagger.Client, error) {
 func setupContainer(client *dagger.Client, ctx context.Context) (*dagger.Container, error) {
 	project := client.Host().Directory("..", dagger.HostDirectoryOpts{
 		Exclude: []string{"venv/", "__pycache__/", "artifacts-out/"},
-		Include: []string{".dvc", ".dvc/cache", ".git", "dvc.yaml", "dvc.lock", "mlops_refactor/", "data/"},
+		Include: []string{".dvc", ".git", "dvc.yaml", "dvc.lock", "mlops_refactor/", "data/"},
 	})
 
 	python := client.Container().
@@ -64,6 +64,17 @@ func setupContainer(client *dagger.Client, ctx context.Context) (*dagger.Contain
 
 	fmt.Println("=== INSTALLING PYTHON DEPENDENCIES ===")
 	python = python.WithExec([]string{"pip", "install", "-r", "mlops_refactor/requirements.txt"})
+
+	fmt.Println("=== INSTALLING DVC ===")
+	python = python.WithExec([]string{
+		"pip", "install", "dvc[fs]",
+	})
+
+	fmt.Println("=== PULLING DATA FROM DVC REMOTE ===")
+	python = python.WithExec([]string{
+		"dvc", "pull",
+	})
+
 
 	return python, nil
 }
